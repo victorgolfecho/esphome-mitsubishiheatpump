@@ -76,6 +76,7 @@ void MitsubishiHeatPump::banner() {
 }
 
 void MitsubishiHeatPump::update() {
+    ESP_LOGI(TAG, "MitsubishiHeatPump::update");
     // This will be called every "update_interval" milliseconds.
     //this->dump_config();
     this->hp->sync();
