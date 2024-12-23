@@ -127,6 +127,9 @@ class MitsubishiHeatPump : public esphome::PollingComponent, public esphome::cli
         // The ClimateTraits supported by this HeatPump.
         esphome::climate::ClimateTraits traits_;
 
+        // Remote Temperature
+        float remote_temperature{NAN};
+
         // Vane position
         void update_swing_horizontal(const std::string &swing);
         void update_swing_vertical(const std::string &swing);
@@ -182,6 +185,8 @@ class MitsubishiHeatPump : public esphome::PollingComponent, public esphome::cli
         std::optional<std::chrono::duration<long long, std::ratio<60>>> remote_operating_timeout_;
         std::optional<std::chrono::duration<long long, std::ratio<60>>> remote_idle_timeout_;
         std::optional<std::chrono::duration<long long, std::ratio<60>>> remote_ping_timeout_;
+        std::optional<std::chrono::duration<long long, std::ratio<1>>>  remote_publish_timeout_;
+        std::optional<std::chrono::time_point<std::chrono::steady_clock>> last_remote_temperature_publish_;
         std::optional<std::chrono::time_point<std::chrono::steady_clock>> last_remote_temperature_sensor_update_;
         std::optional<std::chrono::time_point<std::chrono::steady_clock>> last_ping_request_;
 };

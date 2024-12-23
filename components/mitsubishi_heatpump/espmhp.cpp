@@ -85,6 +85,7 @@ void MitsubishiHeatPump::update() {
     this->hpStatusChanged(currentStatus);
 #endif
     this->enforce_remote_temperature_sensor_timeout();
+    //this->set_remote_temperature(this->remote_temperature);
 }
 
 void MitsubishiHeatPump::set_baud_rate(int baud) {
@@ -620,15 +621,34 @@ void MitsubishiHeatPump::hpStatusChanged(heatpumpStatus currentStatus) {
 }
 
 void MitsubishiHeatPump::set_remote_temperature(float temp) {
-    ESP_LOGD(TAG, "Setting remote temp: %.1f", temp);
-    if (temp > 0) {
-        last_remote_temperature_sensor_update_ = 
-            std::chrono::steady_clock::now();
-    } else {
-        last_remote_temperature_sensor_update_.reset();
+
+    bool isTempNew = (this->remote_temperature != temp);
+
+    if (isTempNew) {
+        if (temp > 0) {
+            this->remote_temperature = temp;
+
+            last_remote_temperature_sensor_update_ =
+                std::chrono::steady_clock::now();
+        } else {
+            this->remote_temperature = NAN;
+            last_remote_temperature_sensor_update_.reset();
+        }
     }
 
-    this->hp->setRemoteTemperature(temp);
+    auto time_since_last_remote_temperature_publish =
+        std::chrono::steady_clock::now() - last_remote_temperature_publish_.value();
+
+    //XXX
+    remote_publish_timeout_ = std::chrono::seconds(30);
+
+    if ( isTempNew || (time_since_last_remote_temperature_publish > remote_publish_timeout_.value())) {
+
+        ESP_LOGD(TAG, "Setting remote temp: %.1f", temp);
+        this->hp->setRemoteTemperature(this->remote_temperature);
+        last_remote_temperature_publish_ = std::chrono::steady_clock::now();
+
+    }
 }
 
 void MitsubishiHeatPump::ping() {
@@ -692,6 +712,7 @@ void MitsubishiHeatPump::setup() {
     ESP_LOGCONFIG(TAG, "Initializing new HeatPump object.");
     this->hp = new HeatPump();
     this->current_temperature = NAN;
+    this->remote_temperature = NAN;
     this->target_temperature = NAN;
     this->fan_mode = climate::CLIMATE_FAN_OFF;
     this->swing_mode = climate::CLIMATE_SWING_OFF;
