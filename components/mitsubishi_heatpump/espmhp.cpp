@@ -637,14 +637,17 @@ void MitsubishiHeatPump::set_remote_temperature(float temp) {
         }
     }
 
-    auto time_since_last_remote_temperature_publish =
-        std::chrono::steady_clock::now() - last_remote_temperature_publish_.value();
-
     //XXX
     remote_publish_timeout_ = std::chrono::seconds(30);
 
-    if ( isTempNew || (time_since_last_remote_temperature_publish > remote_publish_timeout_.value())) {
+    auto time_since_last_remote_temperature_publish =
+        last_remote_temperature_publish_.has_value() ?
+            (std::chrono::steady_clock::now() - last_remote_temperature_publish_.value()) :
+            remote_publish_timeout_.value();
 
+    bool refreshRemoteTemp = (time_since_last_remote_temperature_publish >= remote_publish_timeout_.value());
+
+    if (isTempNew || refreshRemoteTemp) {
         ESP_LOGD(TAG, "Setting remote temp: %.1f", temp);
         this->hp->setRemoteTemperature(this->remote_temperature);
         last_remote_temperature_publish_ = std::chrono::steady_clock::now();
