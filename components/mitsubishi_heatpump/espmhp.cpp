@@ -86,7 +86,7 @@ void MitsubishiHeatPump::update() {
     this->hpStatusChanged(currentStatus);
 #endif
     this->enforce_remote_temperature_sensor_timeout();
-    //this->set_remote_temperature(this->remote_temperature);
+    this->set_remote_temperature(this->remote_temperature);
 }
 
 void MitsubishiHeatPump::set_baud_rate(int baud) {
