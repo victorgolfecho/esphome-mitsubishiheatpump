@@ -646,7 +646,10 @@ void MitsubishiHeatPump::set_remote_temperature(float temp) {
 
     bool refreshRemoteTemp = (time_since_last_remote_temperature_publish >= remote_publish_timeout_.value());
 
-    if (isTempNew || refreshRemoteTemp) {
+    // Do not send zeros UNLESS the zero is new, which means it wasn't zero at one point
+    //  and now we need to update the HP to be zero once.  This zero check also prevents
+    //  us from telling the HP about a remote temperature if there is none
+    if (isTempNew || (refreshRemoteTemp && this->remote_temperature != 0)) {
         ESP_LOGD(TAG, "Setting remote temp: %.1f", this->remote_temperature);
         this->hp->setRemoteTemperature(this->remote_temperature);
         last_remote_temperature_publish_ = std::chrono::steady_clock::now();
