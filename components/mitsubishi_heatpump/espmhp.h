@@ -128,7 +128,7 @@ class MitsubishiHeatPump : public esphome::PollingComponent, public esphome::cli
         esphome::climate::ClimateTraits traits_;
 
         // Remote Temperature
-        float remote_temperature{NAN};
+        float remote_temperature{0};
 
         // Vane position
         void update_swing_horizontal(const std::string &swing);
