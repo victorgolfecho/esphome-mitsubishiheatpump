@@ -639,7 +639,7 @@ void MitsubishiHeatPump::set_remote_temperature(float temp) {
     auto time_since_last_remote_temperature_publish =
         last_remote_temperature_publish_.has_value() ?
             (std::chrono::steady_clock::now() - last_remote_temperature_publish_.value()) :
-            remote_publish_frequency_.has_value() ? remote_publish_frequency_.value() : 0;
+            std::chrono::seconds(99999999);
 
     bool refreshRemoteTemp = remote_publish_frequency_.has_value() ?
                                 (time_since_last_remote_temperature_publish >= remote_publish_frequency_.value()) :
