@@ -69,6 +69,7 @@ CONFIG_SCHEMA = climate.CLIMATE_SCHEMA.extend(
         cv.GenerateID(): cv.declare_id(MitsubishiHeatPump),
         cv.Optional(CONF_HARDWARE_UART, default="UART0"): valid_uart,
         cv.Optional(CONF_BAUD_RATE): cv.positive_int,
+        cv.Optional(CONF_REMOTE_PUBLISH_FREQUENCY): cv.positive_int,
         cv.Optional(CONF_REMOTE_OPERATING_TIMEOUT): cv.positive_int,
         cv.Optional(CONF_REMOTE_IDLE_TIMEOUT): cv.positive_int,
         cv.Optional(CONF_REMOTE_PING_TIMEOUT): cv.positive_int,
