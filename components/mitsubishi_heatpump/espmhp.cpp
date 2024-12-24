@@ -636,16 +636,14 @@ void MitsubishiHeatPump::set_remote_temperature(float temp) {
         }
     }
 
-    //XXX
-    //remote_publish_frequency_ = std::chrono::seconds(30);
-    this->set_remote_publish_frequency_seconds(15);
-
     auto time_since_last_remote_temperature_publish =
         last_remote_temperature_publish_.has_value() ?
             (std::chrono::steady_clock::now() - last_remote_temperature_publish_.value()) :
-            remote_publish_frequency_.value();
+            remote_publish_frequency_.has_value() ? remote_publish_frequency_.value() : 0;
 
-    bool refreshRemoteTemp = (time_since_last_remote_temperature_publish >= remote_publish_frequency_.value());
+    bool refreshRemoteTemp = remote_publish_frequency_.has_value() ?
+                                (time_since_last_remote_temperature_publish >= remote_publish_frequency_.value()) :
+                                false;
 
     // Do not send zeros UNLESS the zero is new, which means it wasn't zero at one point
     //  and now we need to update the HP to be zero once.  This zero check also prevents
