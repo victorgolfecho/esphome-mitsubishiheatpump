@@ -637,14 +637,15 @@ void MitsubishiHeatPump::set_remote_temperature(float temp) {
     }
 
     //XXX
-    remote_publish_timeout_ = std::chrono::seconds(30);
+    //remote_publish_frequency_ = std::chrono::seconds(30);
+    this->set_remote_publish_frequency_seconds(15);
 
     auto time_since_last_remote_temperature_publish =
         last_remote_temperature_publish_.has_value() ?
             (std::chrono::steady_clock::now() - last_remote_temperature_publish_.value()) :
-            remote_publish_timeout_.value();
+            remote_publish_frequency_.value();
 
-    bool refreshRemoteTemp = (time_since_last_remote_temperature_publish >= remote_publish_timeout_.value());
+    bool refreshRemoteTemp = (time_since_last_remote_temperature_publish >= remote_publish_frequency_.value());
 
     // Do not send zeros UNLESS the zero is new, which means it wasn't zero at one point
     //  and now we need to update the HP to be zero once.  This zero check also prevents
@@ -659,6 +660,11 @@ void MitsubishiHeatPump::set_remote_temperature(float temp) {
 void MitsubishiHeatPump::ping() {
     ESP_LOGD(TAG, "Ping request received");
     last_ping_request_ = std::chrono::steady_clock::now();
+}
+
+void MitsubishiHeatPump::set_remote_publish_frequency_seconds(int seconds) {
+    ESP_LOGD(TAG, "Setting remote publish frequency: %d seconds", seconds);
+    remote_publish_frequency_ = std::chrono::seconds(seconds);
 }
 
 void MitsubishiHeatPump::set_remote_operating_timeout_minutes(int minutes) {
